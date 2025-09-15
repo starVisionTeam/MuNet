@@ -82,6 +82,7 @@ If you find this work useful in your research, please consider citing:
 ```bibtex
 @article{MuNet,
   title={MuNet: A Mutualistic Network for Joint 3D Human Mesh Recovery and 3D Clothed Human Reconstruction from Single Images},
+anthor={Yunqi Gao, Leyuan Liu, Yuhan Li, Changxin Gao, Jingying Chen}
   journal={},
   year={2025}
 }
