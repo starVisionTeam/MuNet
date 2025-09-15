@@ -1,0 +1,21 @@
+num_joints = data.size(1)
+sample_coords = []
+for i in range(num_joints):
+    joint_coord = data[:, i, :] / 112. # 将关节点坐标归一化到 [-1, 1]
+    x, y = joint_coord[:, 0], joint_coord[:, 1]
+    grid_x, grid_y = torch.meshgrid(torch.linspace(-1, 1, 4), torch.linspace(-1, 1, 4))
+    sample_x = x.view(-1, 1, 1) + grid_x.view(1, -1, 1)
+    sample_y = y.view(-1, 1, 1) + grid_y.view(1, -1, 1)
+    sample_coord = torch.stack([sample_x, sample_y], dim=-1)
+    sample_coords.append(sample_coord)
+
+sample_coords = torch.stack(sample_coords, dim=1) # size: (batch_size, num_joints, 16, 2)
+sample_coords = sample_coords.view(-1, 16, 2) # size: (batch_size * num_joints, 16, 2)
+
+# step 4: 对每个点的坐标张量进行双线性插值，得到特征值
+sample_features = F.grid_sample(features, sample_coords, align_corners=True) # size: (batch_size * num_joints, feature_dim, 4, 4)
+
+# step 5: 将每个关节点周围 16 个点的特征值拼接起来
+sample_features = sample_features.view(-1, num_joints, 16, sample_features.size(1), 4, 4) # size: (batch_size, num_joints, 16, feature_dim, 4, 4)
+sample_features = sample_features.permute(0, 1, 4, 5, 2, 3).contiguous() # size: (batch_size, num_joints, 4, 4, 16, feature_dim)
+sample_features = sample_features.view(-1, 16, sample_features.size(-1)) # size: (batch_size * num_joints * 4 * 4, 16, feature_dim)
