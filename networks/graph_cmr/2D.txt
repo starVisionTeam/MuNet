@@ -1,0 +1,25 @@
+import torch
+
+def filter_joints(joints):
+    # 筛选出不为 (-1.0, -1.0, 0.0) 的关节点
+    mask = joints != torch.tensor([-1.0, -1.0, 0.0], device=joints.device)
+    
+    # 统计每个样本中满足条件的关节点数量
+    num_joints = mask.sum(dim=1)
+    
+    # 获取最大的关节点数量，即 num
+    num = int(num_joints.max())
+    
+    # 将不满足条件的坐标设置为 NaN
+    joints[~mask] = float("nan")
+    
+    # 创建一个形状为 (batch_size, num, 3) 的张量，将所有满足条件的坐标放入其中
+    filtered_joints = torch.empty(joints.size(0), num, 3, device=joints.device)
+    for i in range(joints.size(0)):
+        filtered_joints[i] = torch.where(
+            mask[i],
+            joints[i],
+            torch.tensor([float("nan"), float("nan"), float("nan")], device=joints.device)
+        )
+    
+    return filtered_joints
