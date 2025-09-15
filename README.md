@@ -80,7 +80,7 @@ python eval.py
 If you find this work useful in your research, please consider citing:
 
 ```bibtex
-@article{YourCitation2025,
+@article{MuNet,
   title={MuNet: A Mutualistic Network for Joint 3D Human Mesh Recovery and 3D Clothed Human Reconstruction from Single Images},
   journal={},
   year={2025}
